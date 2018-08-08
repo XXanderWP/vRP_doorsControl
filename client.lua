@@ -1,15 +1,20 @@
+--[[-----------------
+ 	Doors Control By XanderWP from Ukraine with <3
+ ------------------------]]--
+
 local doors = {}
+local LockHotkey = {0,108}
 
-RegisterNetEvent('vrpdoors:load')
-AddEventHandler('vrpdoors:load', function(list)
+RegisterNetEvent('vrpdoorsystem:load')
+AddEventHandler('vrpdoorsystem:load', function(list)
   doors = list
-end
+end)
 
 
-RegisterNetEvent('vrpdoors:statusSend')
-AddEventHandler('vrpdoors:statusSend', function(i, status)
+RegisterNetEvent('vrpdoorsystem:statusSend')
+AddEventHandler('vrpdoorsystem:statusSend', function(i, status)
   doors[i].locked = status
-end
+end)
 
 
 function searchIdDoor()
@@ -19,6 +24,7 @@ function searchIdDoor()
       return k
     end
   end
+  return 0
 end
 
 
@@ -30,8 +36,8 @@ Citizen.CreateThread(function()
     Citizen.Wait(1)
     if IsControlJustPressed(table.unpack(LockHotkey)) then
       local id = searchIdDoor()
-      if id ~= nil then
-        TriggerServerEvent("vrpdoors:open", id)
+      if id ~= 0 then
+        TriggerServerEvent("vrpdoorsystem:open", id)
       end
     end
   end
@@ -45,8 +51,8 @@ Citizen.CreateThread(function()
     for k,v in pairs(doors) do
       if GetDistanceBetweenCoords(x,y,z,v.x,v.y,v.z,true) <= 10 then
           local door = GetClosestObjectOfType(v.x,v.y,v.z, 1.0, v.hash, false, false, false)
-          SetEntityCanBeDamaged(door, false)
           if door ~= 0 then
+            SetEntityCanBeDamaged(door, false)
             if v.locked == false then
               NetworkRequestControlOfEntity(door)
               FreezeEntityPosition(door, false)
